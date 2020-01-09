@@ -2,12 +2,12 @@ package tx
 
 import (
 	"encoding/hex"
-	"github.com/irisnet/explorer/backend/utils"
 	"github.com/irisnet/sdk-go/client/basic"
 	"github.com/irisnet/sdk-go/client/lcd"
 	"github.com/irisnet/sdk-go/client/rpc"
 	"github.com/irisnet/sdk-go/keys"
 	commontypes "github.com/irisnet/sdk-go/types"
+	"github.com/irisnet/sdk-go/util"
 	"testing"
 )
 
@@ -41,6 +41,6 @@ func TestClient_PostServiceResponse(t *testing.T) {
 	if res, err := c.PostServiceResponse(response, "test service response", true); err != nil {
 		t.Fatal(err)
 	} else {
-		t.Log(string(utils.MarshalJsonIgnoreErr(res)))
+		t.Log(util.ToJsonIgnoreErr(res))
 	}
 }
