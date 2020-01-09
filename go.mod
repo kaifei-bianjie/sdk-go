@@ -1,6 +1,7 @@
 module github.com/irisnet/sdk-go
 
 require (
+	github.com/cosmos/go-bip39 v0.0.0-20180618194314-52158e4697b8
 	github.com/irisnet/irishub v0.16.0
 	github.com/moul/http2curl v1.0.0 // indirect
 	github.com/parnurzeal/gorequest v0.2.15

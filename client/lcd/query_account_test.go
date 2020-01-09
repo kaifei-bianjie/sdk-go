@@ -11,13 +11,13 @@ var (
 )
 
 func TestMain(m *testing.M) {
-	baseClient := basic.NewClient("http://v2.irisnet-lcd.dev.rainbow.one")
+	baseClient := basic.NewClient("http://v2.irisnet-lcd.rainbow.one")
 	c = NewClient(baseClient)
 	m.Run()
 }
 
 func TestClient_QueryAccount(t *testing.T) {
-	address := "faa1282eufkw9qgm55symgqqg38nremslvggpylkht"
+	address := "iaa1cx79dle0acdystaqvva4m2n3ta95v2pp4aw9ve"
 	if res, err := c.QueryAccount(address); err != nil {
 		t.Fatal(err)
 	} else {

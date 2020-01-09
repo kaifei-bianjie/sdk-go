@@ -1,6 +1,9 @@
 package keys
 
 import (
+	sdk "github.com/irisnet/irishub/types"
+	"github.com/irisnet/sdk-go/util"
+	"github.com/irisnet/sdk-go/util/constant"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -18,5 +21,25 @@ func TestNewKeyStoreKeyManager(t *testing.T) {
 		t.Log(km.GetAddr().String())
 
 		assert.Equal(t, km.GetPrivKey().PubKey().VerifyBytes(msg, signature), true)
+	}
+}
+
+func TestNewMnemonicKeyManager(t *testing.T) {
+	sdk.SetNetworkType(constant.NetworkTypeMainnet)
+
+	mnemonic := ""
+	password := ""
+	fullpath := "44'/118'/1'/0/0"
+
+	if km, err := NewMnemonicKeyManager(mnemonic, password, fullpath); err != nil {
+		t.Fatal(err)
+	} else {
+		t.Log(km.GetAddr().String())
+
+		if res, err := km.ExportKeyStore(""); err != nil {
+			t.Fatal(err)
+		} else {
+			t.Log(util.ToJsonIgnoreErr(res))
+		}
 	}
 }

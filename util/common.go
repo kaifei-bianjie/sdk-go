@@ -14,6 +14,10 @@ func StrToInt64IgnoreErr(str string) int64 {
 	return i
 }
 
+func Float64ToStr(f float64) string {
+	return strconv.FormatFloat(f, 'f', -1, 64)
+}
+
 func ToJsonIgnoreErr(obj interface{}) string {
 	resBytes, _ := json.Marshal(obj)
 	return string(resBytes)
