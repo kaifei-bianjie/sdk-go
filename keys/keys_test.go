@@ -25,18 +25,18 @@ func TestNewKeyStoreKeyManager(t *testing.T) {
 }
 
 func TestNewMnemonicKeyManager(t *testing.T) {
-	sdk.SetNetworkType(constant.NetworkTypeTestnet)
+	sdk.SetNetworkType(constant.NetworkTypeMainnet)
 
-	mnemonic := ""
+	mnemonic := "proof general own domain feature brass pen vehicle excite exotic way monkey stuff animal gorilla security roast street artwork room blue smoke fancy address"
 	password := ""
-	fullpath := "44'/118'/0'/0/0"
+	fullpath := "44'/118'/11'/0/0"
 
 	if km, err := NewMnemonicKeyManager(mnemonic, password, fullpath); err != nil {
 		t.Fatal(err)
 	} else {
 		t.Log(km.GetAddr().String())
 
-		if res, err := km.ExportKeyStore("1234567890"); err != nil {
+		if res, err := km.ExportKeyStore("rainbow6688"); err != nil {
 			t.Fatal(err)
 		} else {
 			t.Log(util.ToJsonIgnoreErr(res))
