@@ -1,5 +1,7 @@
 vendor
 .idea
 .DS_Store
+ks.txt
 *.json
 *.xlsx
+

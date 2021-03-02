@@ -1,15 +1,21 @@
 package util
 
 import (
+	"fmt"
 	"math"
-	"strings"
 	"testing"
 )
 
 func TestFloat64ToStr(t *testing.T) {
-	v := float64(23214.234543)
+	v := float64(0.0000677806639676961)
 	v1 := v * math.Pow10(18)
 	res := Float64ToStr(v1)
+	t.Log(res)
+}
+
+func TestFloat64ToStrWithDecimal(t *testing.T) {
+	v := float64(0.0000677806639676961)
+	res := Float64ToStrWithDecimal(v, 10)
 	t.Log(res)
 }
 
@@ -23,5 +29,10 @@ func TestStrToFloat64(t *testing.T) {
 }
 
 func TestStr(t *testing.T) {
-	t.Log(strings.Replace(" bnb18krp3ktjgum0tcdd23d6wn587qlsg54llk6kjs", " ", "", -1))
+	amtStr := "0.0000677806639676961"
+	amtF, err := StrToFloat64(amtStr)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(fmt.Sprintf("%.8f", amtF))
 }

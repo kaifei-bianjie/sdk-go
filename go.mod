@@ -1,26 +1,17 @@
 module github.com/irisnet/sdk-go
 
+		go 1.15
+
 require (
-        github.com/360EntSecGroup-Skylar/excelize v1.4.1
-	github.com/cosmos/go-bip39 v0.0.0-20180618194314-52158e4697b8
-	github.com/irisnet/irishub v0.16.0
-        github.com/irisnet/irishub-sync v0.16.3 // indirect
+		github.com/360EntSecGroup-Skylar/excelize v1.4.1
+		github.com/irisnet/irishub-sdk-go v0.0.0-20210302140034-fc5f40ecd007
 	github.com/moul/http2curl v1.0.0 // indirect
-	github.com/parnurzeal/gorequest v0.2.15
-	github.com/pkg/errors v0.8.1
-	github.com/stretchr/testify v1.4.0
-	github.com/tendermint/go-amino v0.14.1
-        github.com/tendermint/tendermint v0.32.7
+		github.com/parnurzeal/gorequest v0.2.15 // indirect
+		github.com/pkg/errors v0.9.1 // indirect
+		github.com/stretchr/testify v1.6.1 // indirect
 	go.uber.org/zap v1.13.0 // indirect
-	golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4
-	golang.org/x/text v0.3.2 // indirect
+		golang.org/x/crypto v0.0.0-20201016220609-9e8e0b390897 // indirect
 	gopkg.in/resty.v1 v1.12.0 // indirect
 )
 
-replace (
-	github.com/tendermint/iavl => github.com/irisnet/iavl v0.12.3
-	github.com/tendermint/tendermint => github.com/irisnet/tendermint v0.32.1
-	golang.org/x/crypto => github.com/tendermint/crypto v0.0.0-20180820045704-3764759f34a5
-)
-
-go 1.13
+		replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.2-alpha.regen.4
