@@ -9,10 +9,10 @@ import (
 )
 
 const (
-	ossEndPoint     = "oss-cn-shanghai.aliyuncs.com"
-	ossBucketName   = "bit-byte-char"
-	ossAccessKey    = "LTAI5tJTWxxhkJiwJzb3EsJy"
-	ossAccessSecret = "V0V67pfeX9H2AyIdtDz723IOnPbdk2"
+	ossEndPoint     = "xxx"
+	ossBucketName   = "xxx"
+	ossAccessKey    = "xxx"
+	ossAccessSecret = "xxx"
 )
 
 var (
