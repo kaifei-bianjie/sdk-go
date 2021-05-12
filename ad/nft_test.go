@@ -20,6 +20,7 @@ const (
 	nftDataMedalFaceValueDenom = "bif"
 	nftDenom                   = "leeq"
 	nftRedeemable              = true
+	nftImgKeyPrefix            = "test/"
 )
 
 var (
@@ -190,9 +191,9 @@ func genNftInfo(holder string, levelCounter map[string]int, level string) (nftId
 	for i := len(counterItoa); i < 4; i++ {
 		counterItoa = "0" + counterItoa
 	}
-	nftId = level + counterItoa + holder[len(holder)-8:]
-	nftName = nftNamePrefix + " " + level + " " + counterItoa + " " + holder[len(holder)-8:]
-	nftImgKey = nftDenom + nftId + ".svg"
+	nftId = fmt.Sprintf("%s%s%s", level, counterItoa, holder[len(holder)-8:])
+	nftName = fmt.Sprintf("%s %s %s %s", nftNamePrefix, level, counterItoa, holder[len(holder)-8:])
+	nftImgKey = fmt.Sprintf("%s%s%s.svg", nftImgKeyPrefix, nftDenom, nftId)
 	return nftId, nftName, nftImgKey
 }
 
