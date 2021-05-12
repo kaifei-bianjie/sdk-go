@@ -27,9 +27,9 @@ type (
 
 const (
 	fromName     = "test"
-	fromPassword = "xxx"
+	fromPassword = "200200200"
 	gasLimit     = uint64(100000)
-	denom        = "uiris"
+	denom        = "ubif"
 	feeAmount    = 20000
 )
 
@@ -45,15 +45,16 @@ var (
 )
 
 func initClient() {
-	nodeUri := "http://sentry-0.mainnet.irisnet.org:26657"
-	grpcAddr := "sentry-1.mainnet.irisnet.org:9090"
-	chainId := "irishub-1"
-	initKMType := "ks"
+	//nodeUri := "http://sentry-0.mainnet.irisnet.org:26657"
+	//grpcAddr := "sentry-1.mainnet.irisnet.org:9090"
+	//chainId := "irishub-1"
+	//initKMType := "ks"
 
 	//network := types.Testnet
-	//nodeUri := "http://irisnet-lcd.dev.bianjie.ai"
-	//grpcAddr := "tcp://192.168.150.32:26657"
-	//initKMType := "ks"
+	nodeUri := "http://192.168.150.40:26657"
+	grpcAddr := "192.168.150.40:9090"
+	initKMType := "ks"
+	chainId := "bifrost-2"
 
 	options := []sdktypes.Option{keyDaoOption}
 	if cfg, err := sdktypes.NewClientConfig(nodeUri, grpcAddr, chainId, options...); err != nil {
@@ -103,7 +104,7 @@ func TestInitClient(t *testing.T) {
 
 func TestGetAccountInfo(t *testing.T) {
 	initClient()
-	address := "iaa10snc8psl5czvevlca2lllugv0zwjy5gt6agars"
+	address := "iaa1tzl7vrq99l8r4yvnh3fl5k8y35q560fr09em8e"
 	if v, err := irisClient.QueryAccount(address); err != nil {
 		t.Fatal(err)
 	} else {
