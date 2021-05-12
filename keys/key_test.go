@@ -10,7 +10,7 @@ import (
 
 func TestNewKeyStoreKeyManager(t *testing.T) {
 	file := "./ks.txt"
-	passWd := ""
+	passWd := "200200200"
 
 	if c, err := util.ReadFile(file); err != nil {
 		t.Fatalf("read ks file fail, err: %s", err.Error())

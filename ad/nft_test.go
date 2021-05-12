@@ -1,0 +1,243 @@
+package ad
+
+import (
+	"encoding/json"
+	"fmt"
+	"github.com/360EntSecGroup-Skylar/excelize"
+	"github.com/aliyun/aliyun-oss-go-sdk/oss"
+	"github.com/irisnet/irishub-sdk-go/modules/nft"
+	sdktypes "github.com/irisnet/irishub-sdk-go/types"
+	"github.com/irisnet/sdk-go/util"
+	"strconv"
+	"strings"
+	"testing"
+	"time"
+)
+
+const (
+	nftNamePrefix              = "Bifrost Testnet Badge"
+	nftStatus                  = "active"
+	nftDataMedalFaceValueDenom = "bif"
+	nftDenom                   = "leeq"
+	nftRedeemable              = true
+)
+
+var (
+	faceValueMap = map[string]nftDataMedalFaceValue{
+		"gold": nftDataMedalFaceValue{
+			Denom:  nftDataMedalFaceValueDenom,
+			Amount: "20",
+		},
+		"silver": nftDataMedalFaceValue{
+			Denom:  nftDataMedalFaceValueDenom,
+			Amount: "10",
+		},
+		"bronze": nftDataMedalFaceValue{
+			Denom:  nftDataMedalFaceValueDenom,
+			Amount: "1",
+		},
+	}
+	badgeLevelNameMap = map[string]int{
+		"gold":   1,
+		"silver": 2,
+		"bronze": 3,
+	}
+	badgeIconMap = map[string]string{
+		"gold":   "https://bit-byte-char.oss-cn-shanghai.aliyuncs.com/gold_badge_icon.png",
+		"silver": "https://bit-byte-char.oss-cn-shanghai.aliyuncs.com/silver_badge_icon.png",
+		"bronze": "https://bit-byte-char.oss-cn-shanghai.aliyuncs.com/bronze_badge_icon.png",
+	}
+	nftImgSvgSourcePathMap = map[string]string{
+		"gold":   "./source/svg_data_gold.txt",
+		"silver": "./source/svg_data_silver.txt",
+		"bronze": "./source/svg_data_bronze.txt",
+	}
+	nftImgSvgTemplatePath = "./source/svg_img_template.svg"
+)
+
+type (
+	nftDataMedalFaceValue struct {
+		Denom  string `json:"denom"`
+		Amount string `json:"amount"`
+	}
+	nftDataMedal struct {
+		Holder          string                `json:"holder"`
+		Status          string                `json:"status"`
+		Level           int                   `json:"level"`
+		Img             string                `json:"img"`
+		Icon            string                `json:"icon"`
+		FaceValue       nftDataMedalFaceValue `json:"face_value"`
+		RedeemStartTime int                   `json:"redeem_start_time"`
+		RedeemEndTime   int                   `json:"redeem_end_time"`
+		Redeemable      bool                  `json:"redeemable"`
+	}
+
+	nftData struct {
+		Medal nftDataMedal `json:"medal"`
+	}
+)
+
+func TestNftMint(t *testing.T) {
+	initClient()
+	initOssClient()
+	data := nftData{}                    //nft data
+	medal := nftDataMedal{}              //nft data medal property
+	levelCounter := make(map[string]int) //计数
+	memo := "test"
+	getAccInfo := func(addr string) (uint64, uint64, error) {
+		var accNumber, sequence uint64
+		if acc, err := irisClient.QueryAccount(addr); err != nil {
+			err := fmt.Errorf("get sender acc info fail, addr:%s, err:%s", addr, err.Error())
+			return accNumber, sequence, err
+		} else {
+			accNumber = acc.AccountNumber
+			sequence = acc.Sequence
+		}
+		return accNumber, sequence, nil
+	}
+	var signerAccNumber, signerSequence uint64
+	sender := sendAddr
+	if v1, v2, err := getAccInfo(sender); err != nil {
+		fmt.Println(err.Error())
+		return
+	} else {
+		signerAccNumber = v1
+		signerSequence = v2
+	}
+
+	baseTx := sdktypes.BaseTx{
+		From:          fromName,
+		Password:      fromPassword,
+		Gas:           gasLimit,
+		Fee:           sdktypes.DecCoins{fee},
+		Memo:          memo,
+		Mode:          sdktypes.Sync,
+		AccountNumber: signerAccNumber,
+		Sequence:      signerSequence,
+	}
+
+	request := nft.MintNFTRequest{}
+	xlsx, err := excelize.OpenFile("./nft.xlsx")
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+	// 获取 Sheet1 上所有单元格
+	excel := xlsx.GetRows("Sheet1")
+	header := excel[0]
+	if len(header) < 4 {
+		panic("excel 数据格式有错误")
+	}
+
+	index := 1
+	var nftImgSvgTemplateStr string                      //nft image template
+	nftImgSvgSourceContentMap := make(map[string]string) //图片内容
+	for i := 1; i < len(excel); i++ {
+		row := excel[i]
+		holder := row[0]
+		startTime, _ := strconv.Atoi(row[1])
+		endTime, _ := strconv.Atoi(row[2])
+		for j := 3; j < len(row); j++ {
+			level := strings.Split(header[j], "_")[1]
+			quantity, _ := strconv.Atoi(row[j])
+			for k := 0; k < quantity; k++ {
+				if index%100 == 0 {
+					time.Sleep(10 * time.Second)
+				}
+				//整理数据，组装参数
+				nftId, nftName, nftImgKey := genNftInfo(holder, levelCounter, level)
+				nftDataMedalBuilder(&medal, holder, level, nftImgKey, startTime, endTime)
+				data.Medal = medal
+				jsonData, _ := json.Marshal(data)
+				request.Denom = nftDenom
+				request.URI = ""
+				request.ID = nftId
+				request.Name = nftName
+				request.Data = string(jsonData)
+				request.Recipient = holder
+				//mint nft
+				if res, err := irisClient.NFT.MintNFT(request, baseTx); err != nil {
+					t.Errorf("nft mint fail, index: %d, errCode: %d, codeSpace: %s, err: %s\n",
+						index, err.Code(), err.Codespace(), err.Error())
+					time.Sleep(time.Duration(5) * time.Second)
+					if _, v2, err := getAccInfo(sender); err != nil {
+						t.Errorf("query acc info fail, addr:%s, err:%s\n", sender, err.Error())
+					} else {
+						baseTx.Sequence = v2
+					}
+				} else {
+					t.Logf("nft mint success, txHash: %s, nftId: %s", res.Hash, nftId)
+					baseTx.Sequence += 1
+					//发交易成功，上传图片
+					uploadNftImg(&nftImgSvgTemplateStr, nftImgSvgSourceContentMap, nftImgKey, level, nftId)
+				}
+				index++
+			}
+		}
+	}
+}
+
+func genNftInfo(holder string, levelCounter map[string]int, level string) (nftId, nftName, nftImgKey string) {
+	counter, ok := levelCounter[level]
+	if ok {
+		counter += 1
+		levelCounter[level] = counter
+	} else {
+		counter = 1
+		levelCounter[level] = counter
+	}
+	counterItoa := strconv.Itoa(counter)
+	for i := len(counterItoa); i < 4; i++ {
+		counterItoa = "0" + counterItoa
+	}
+	nftId = level + counterItoa + holder[len(holder)-8:]
+	nftName = nftNamePrefix + " " + level + " " + counterItoa + " " + holder[len(holder)-8:]
+	nftImgKey = nftDenom + nftId + ".svg"
+	return nftId, nftName, nftImgKey
+}
+
+func nftDataMedalBuilder(medal *nftDataMedal, holder, level, nftImgKey string, redeemStartTime, redeemEndTime int) {
+	medal.Holder = holder
+	medal.Level, _ = badgeLevelNameMap[level]
+	medal.Img = genOssUrl(nftImgKey)
+	medal.Icon = badgeIconMap[level]
+	medal.FaceValue = faceValueMap[level]
+	medal.Status = nftStatus
+	medal.Redeemable = nftRedeemable
+	medal.RedeemEndTime = redeemEndTime
+	medal.RedeemStartTime = redeemStartTime
+}
+
+func uploadNftImg(nftImgSvgTemplateStr *string, nftImgSvgSourceContentMap map[string]string, imgKey, level, nftId string) {
+	if *nftImgSvgTemplateStr == "" {
+		if c, err := util.ReadFile(nftImgSvgTemplatePath); err != nil {
+			fmt.Printf("读取文件失败，file path：%s, error: %s\n", nftImgSvgTemplatePath, err.Error())
+			return
+		} else {
+			*nftImgSvgTemplateStr = c
+		}
+	}
+	uploadStr := *nftImgSvgTemplateStr
+	imgContent, ok := nftImgSvgSourceContentMap[level]
+	if !ok {
+		if c, err := util.ReadFile(nftImgSvgSourcePathMap[level]); err != nil {
+			fmt.Printf("读取文件失败，file path：%s, error: %s\n", nftImgSvgSourcePathMap[level], err.Error())
+			return
+		} else {
+			nftImgSvgSourceContentMap[level] = c
+			imgContent = c
+		}
+	}
+	uploadStr = strings.Replace(uploadStr, "${img_data}", imgContent, 1)
+	uploadStr = strings.Replace(uploadStr, "${nft_id}", nftId, 1)
+	option := oss.ContentType("text/xml")
+	objectAcl := oss.ObjectACL(oss.ACLPublicRead)
+
+	err := ossBucket.PutObject(imgKey, strings.NewReader(uploadStr), option, objectAcl)
+	if err != nil {
+		fmt.Printf("upload img error,Error:%s\n", err)
+		return
+	} else {
+		fmt.Printf("上传图片成功,imgKey:%s\n", imgKey)
+	}
+}

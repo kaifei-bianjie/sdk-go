@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="480px" height="644px" viewBox="0 0 480 644" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 55.1 (78136) - https://sketchapp.com -->
+    <title>nftid_gold2</title>
+    <desc>Created with Sketch.</desc>
+    <g id="nftid_gold2" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <image id="位图" x="0" y="0" width="480" height="644" xlink:href="${img_data}"></image>
+        <text x="50%" y="575" text-anchor="middle" id="NFT-ID" fill="#FFEDE3"  font-size="16" font-weight="normal" letter-spacing="-0.5" font-family="PingFangSC-Regular, PingFang SC">
+            <tspan >NFT ID :</tspan>
+            <tspan >${nft_id}</tspan>
+        </text>
+    </g>
+</svg>
