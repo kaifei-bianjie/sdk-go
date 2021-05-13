@@ -17,11 +17,12 @@ import (
 const (
 	nftNamePrefix              = "Bifrost Testnet Badge"
 	nftStatus                  = "active"
-	nftDataMedalFaceValueDenom = "ubif"
-	nftDenom                   = "bluetee"
-	nftDenomName               = "blueteece"
+	nftDataMedalFaceValueDenom = "uiris"
+	nftDenom                   = "badgetest001"
+	nftDenomName               = "BifrostTestnetBadge"
 	nftRedeemable              = true
 	nftImgKeyPrefix            = "test/"
+	nftVoucherDataFilePath     = "./nft_voucher.xlsx"
 )
 
 var (
@@ -45,9 +46,9 @@ var (
 		"bronze": 3,
 	}
 	badgeIconMap = map[string]string{
-		"gold":   "https://bit-byte-char.oss-cn-shanghai.aliyuncs.com/gold_badge_icon.png",
-		"silver": "https://bit-byte-char.oss-cn-shanghai.aliyuncs.com/silver_badge_icon.png",
-		"bronze": "https://bit-byte-char.oss-cn-shanghai.aliyuncs.com/bronze_badge_icon.png",
+		"gold":   "https://rb-app.oss-cn-shanghai.aliyuncs.com/icon_badge_gold.png",
+		"silver": "https://rb-app.oss-cn-shanghai.aliyuncs.com/icon_badge_silver.png",
+		"bronze": "https://rb-app.oss-cn-shanghai.aliyuncs.com/icon_badge_bronze.png",
 	}
 	nftImgSvgSourcePathMap = map[string]string{
 		"gold":   "./source/svg_data_gold.txt",
@@ -119,7 +120,7 @@ func TestNftMint(t *testing.T) {
 	}
 
 	request := nft.MintNFTRequest{}
-	xlsx, err := excelize.OpenFile("./nft.xlsx")
+	xlsx, err := excelize.OpenFile(nftVoucherDataFilePath)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
@@ -171,7 +172,7 @@ func TestNftMint(t *testing.T) {
 						baseTx.Sequence = v2
 					}
 				} else {
-					t.Logf("nft mint success, txHash: %s, nftId: %s", res.Hash, nftId)
+					t.Logf("nft mint success, txHash: %s, nftId: %s\n", res.Hash, nftId)
 					baseTx.Sequence += 1
 					//发交易成功，上传图片
 					uploadNftImg(&nftImgSvgTemplateStr, nftImgSvgSourceContentMap, nftImgKey, level, nftId)

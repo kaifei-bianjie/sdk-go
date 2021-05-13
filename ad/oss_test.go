@@ -35,17 +35,25 @@ func initOssClient() {
 
 func TestUploadFileIcon(t *testing.T) {
 	initOssClient()
-	objectName := "silver_badge_icon.png"
-	fmt.Printf("上传，obejctName为：%s\n", objectName)
+	iconNameFilePathMap := map[string]string{
+		"icon_badge_bronze.png": "./source/icon_badge_bronze.png",
+		"icon_badge_gold.png":   "./source/icon_badge_gold.png",
+		"icon_badge_silver.png": "./source/icon_badge_silver.png",
+	}
+
 	option := oss.ContentType("image/jpg")
 	objectAcl := oss.ObjectACL(oss.ACLPublicRead)
 
-	err := ossBucket.PutObjectFromFile(objectName, "./source/icon_gold_badge.png", option, objectAcl)
-	if err != nil {
-		fmt.Println("Error:", err)
-		return
+	if len(iconNameFilePathMap) > 0 {
+		for objName, filePath := range iconNameFilePathMap {
+			err := ossBucket.PutObjectFromFile(objName, filePath, option, objectAcl)
+			if err != nil {
+				t.Errorf("%s, Error:%s", filePath, err)
+				return
+			}
+			t.Logf("%s:%s\n", filePath, genOssUrl(objName))
+		}
 	}
-	fmt.Printf("上传成功，路径为：%s\n", genOssUrl(objectName))
 }
 
 func TestUploadFileSvg(t *testing.T) {
