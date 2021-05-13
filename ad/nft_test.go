@@ -17,8 +17,9 @@ import (
 const (
 	nftNamePrefix              = "Bifrost Testnet Badge"
 	nftStatus                  = "active"
-	nftDataMedalFaceValueDenom = "bif"
-	nftDenom                   = "leeq"
+	nftDataMedalFaceValueDenom = "ubif"
+	nftDenom                   = "bluetee"
+	nftDenomName               = "blueteece"
 	nftRedeemable              = true
 	nftImgKeyPrefix            = "test/"
 )
@@ -27,15 +28,15 @@ var (
 	faceValueMap = map[string]nftDataMedalFaceValue{
 		"gold": nftDataMedalFaceValue{
 			Denom:  nftDataMedalFaceValueDenom,
-			Amount: "20",
+			Amount: "20000000",
 		},
 		"silver": nftDataMedalFaceValue{
 			Denom:  nftDataMedalFaceValueDenom,
-			Amount: "10",
+			Amount: "10000000",
 		},
 		"bronze": nftDataMedalFaceValue{
 			Denom:  nftDataMedalFaceValueDenom,
-			Amount: "1",
+			Amount: "5000000",
 		},
 	}
 	badgeLevelNameMap = map[string]int{
@@ -136,6 +137,9 @@ func TestNftMint(t *testing.T) {
 	for i := 1; i < len(excel); i++ {
 		row := excel[i]
 		holder := row[0]
+		if holder == "" {
+			continue
+		}
 		startTime, _ := strconv.Atoi(row[1])
 		endTime, _ := strconv.Atoi(row[2])
 		for j := 3; j < len(row); j++ {
@@ -155,7 +159,7 @@ func TestNftMint(t *testing.T) {
 				request.ID = nftId
 				request.Name = nftName
 				request.Data = string(jsonData)
-				request.Recipient = holder
+				//request.Recipient = holder
 				//mint nft
 				if res, err := irisClient.NFT.MintNFT(request, baseTx); err != nil {
 					t.Errorf("nft mint fail, index: %d, errCode: %d, codeSpace: %s, err: %s\n",
@@ -175,6 +179,10 @@ func TestNftMint(t *testing.T) {
 				index++
 			}
 		}
+	}
+	t.Log("TestNftMint finish")
+	for s, v := range levelCounter {
+		t.Logf("%s:%d", s, v)
 	}
 }
 
@@ -239,6 +247,30 @@ func uploadNftImg(nftImgSvgTemplateStr *string, nftImgSvgSourceContentMap map[st
 		fmt.Printf("upload img error,Error:%s\n", err)
 		return
 	} else {
-		fmt.Printf("上传图片成功,imgKey:%s\n", imgKey)
+		//fmt.Printf("上传图片成功,imgKey:%s\n", imgKey)
+	}
+}
+
+func TestNftIssue(t *testing.T) {
+	schemaJsonStr := `{"$schema":"http://json-schema.org/draft-07/schema#","$id":"http://json-schema.org/draft-07/schema#","title":"Medal Denom schema meta-schema","type":"object","properties":{"medal":{"type":"object","properties":{"holder":{"type":"string"},"img":{"type":"string","description":"voucher img of voucher holder"},"icon":{"type":"string","description":"voucher icon of voucher holder"},"status":{"type":"string","enum":["active","redeemed","expired"]},"level":{"type":"integer","description":"level of voucher, according to denom descript level meaning","enum":[1,2,3]},"face_value":{"type":"object","properties":{"denom":{"type":"string"},"amount":{"type":"string"}}},"redeemable":{"type":"boolean","enum":[true,false]},"redeem_after":{"type":"string"},"redeem_before":{"type":"string"},"redeem_start_time":{"type":"integer"},"redeem_end_time":{"type":"integer"}},"required":["holder","img","icon","status","level","face_value","redeemable","redeem_start_time","redeem_end_time"]}},"definitions":{}}`
+
+	initClient()
+	baseTx := sdktypes.BaseTx{
+		From:     fromName,
+		Password: fromPassword,
+		Gas:      gasLimit,
+		Fee:      sdktypes.DecCoins{fee},
+		Memo:     "",
+		Mode:     sdktypes.Sync,
+	}
+	request := nft.IssueDenomRequest{
+		ID:     nftDenom,
+		Name:   nftDenomName,
+		Schema: schemaJsonStr,
+	}
+	if res, err := irisClient.NFT.IssueDenom(request, baseTx); err != nil {
+		t.Fatalf("nft mint fail, errCode: %d, codeSpace: %s, err: %s", err.Code(), err.Codespace(), err.Error())
+	} else {
+		t.Logf("issue denom success, txHash: %s, denomId: %s, denomName: %s", res.Hash, request.ID, request.Name)
 	}
 }
