@@ -2,6 +2,7 @@ package ad
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"github.com/360EntSecGroup-Skylar/excelize"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
@@ -184,6 +185,87 @@ func TestNftMint(t *testing.T) {
 	t.Log("TestNftMint finish")
 	for s, v := range levelCounter {
 		t.Logf("%s:%d", s, v)
+	}
+}
+
+var (
+	denomId      = flag.String("denomId", "", "")
+	nftId        = flag.String("nftId", "", "")
+	nftName      = flag.String("nftName", "", "")
+	nftRecipient = flag.String("nftRecipient", "", "")
+	uri          = flag.String("uri", "", "")
+	data         = flag.String("data", "", "")
+)
+
+func TestNftMintSingle(t *testing.T) {
+	initClient()
+	baseTx := sdktypes.BaseTx{
+		From:     fromName,
+		Password: fromPassword,
+		Gas:      gasLimit,
+		Fee:      sdktypes.DecCoins{fee},
+		Memo:     "test",
+		Mode:     sdktypes.Sync,
+	}
+	flag.Parse()
+	request := nft.MintNFTRequest{}
+	request.Denom = *denomId
+	request.URI = *uri
+	request.ID = *nftId
+	request.Name = *nftName
+	request.Data = *data
+	request.Recipient = *nftRecipient
+	if res, err := irisClient.NFT.MintNFT(request, baseTx); err != nil {
+		t.Errorf("nft mint fail, errCode: %d, codeSpace: %s, err: %s\n", err.Code(), err.Codespace(), err.Error())
+	} else {
+		t.Logf("nft mint success, txHash: %s", res.Hash)
+	}
+}
+
+func TestNftEditSingle(t *testing.T) {
+	initClient()
+	baseTx := sdktypes.BaseTx{
+		From:     fromName,
+		Password: fromPassword,
+		Gas:      gasLimit,
+		Fee:      sdktypes.DecCoins{fee},
+		Memo:     "test",
+		Mode:     sdktypes.Sync,
+	}
+	flag.Parse()
+	request := nft.EditNFTRequest{
+		Denom: *denomId,
+		URI:   *uri,
+		ID:    *nftId,
+		Name:  *nftName,
+		Data:  *data,
+	}
+	if res, err := irisClient.NFT.EditNFT(request, baseTx); err != nil {
+		t.Errorf("nft edit fail, errCode: %d, codeSpace: %s, err: %s\n", err.Code(), err.Codespace(), err.Error())
+	} else {
+		t.Logf("nft edit success, txHash: %s", res.Hash)
+	}
+}
+
+func TestNftBurnSingle(t *testing.T) {
+	initClient()
+	baseTx := sdktypes.BaseTx{
+		From:     fromName,
+		Password: fromPassword,
+		Gas:      gasLimit,
+		Fee:      sdktypes.DecCoins{fee},
+		Memo:     "test",
+		Mode:     sdktypes.Sync,
+	}
+	flag.Parse()
+	request := nft.BurnNFTRequest{
+		Denom: *denomId,
+		ID:    *nftId,
+	}
+	if res, err := irisClient.NFT.BurnNFT(request, baseTx); err != nil {
+		t.Errorf("nft burn fail, errCode: %d, codeSpace: %s, err: %s\n", err.Code(), err.Codespace(), err.Error())
+	} else {
+		t.Logf("nft burn success, txHash: %s", res.Hash)
 	}
 }
 
