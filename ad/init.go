@@ -23,10 +23,10 @@ type (
 
 const (
 	fromName     = "test"
-	fromPassword = "1234567890"
-	gasLimit     = uint64(200000)
+	fromPassword = "eKF3TOm0BX"
+	gasLimit     = uint64(150000)
 	denom        = "uiris"
-	feeAmount    = 50000
+	feeAmount    = 30000
 )
 
 var (
@@ -42,10 +42,10 @@ var (
 
 func initClient() {
 	// prod
-	//nodeUri := "http://sentry-0.mainnet.irisnet.org:26657"
-	//grpcAddr := "sentry-1.mainnet.irisnet.org:9090"
-	//chainId := "irishub-1"
-	//initKMType := "ks"
+	nodeUri := "http://seed-1.mainnet.irisnet.org:26657"
+	grpcAddr := "seed-1.mainnet.irisnet.org:9090"
+	chainId := "irishub-1"
+	initKMType := "ks"
 
 	// dev
 	//network := types.Testnet
@@ -55,10 +55,10 @@ func initClient() {
 	//chainId := "bifrost-2"
 
 	// qa
-	nodeUri := "http://192.168.150.60:26657"
-	grpcAddr := "192.168.150.60:29090"
-	chainId := "irishub-qa2"
-	initKMType := "ks"
+	//nodeUri := "http://192.168.150.60:26657"
+	//grpcAddr := "192.168.150.60:29090"
+	//chainId := "irishub-qa2"
+	//initKMType := "ks"
 
 	options := []sdktypes.Option{keyDaoOption}
 	if cfg, err := sdktypes.NewClientConfig(nodeUri, grpcAddr, chainId, options...); err != nil {

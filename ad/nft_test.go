@@ -18,26 +18,26 @@ const (
 	nftNamePrefix              = "Bifrost Testnet Badge"
 	nftStatus                  = "active"
 	nftDataMedalFaceValueDenom = "uiris"
-	nftDenom                   = "badgetest001"
-	nftDenomName               = "BifrostTestnetBadge"
+	nftDenom                   = "bifrostestnetbadge"
+	nftDenomName               = "BifrostTestnetBadges"
 	nftRedeemable              = true
-	nftImgKeyPrefix            = "test/"
-	nftVoucherDataFilePath     = "./nft_voucher.xlsx"
+	nftImgKeyPrefix            = "nft/badge/"
+	nftVoucherDataFilePath     = "./nft_badges_modify_2.xlsx"
 )
 
 var (
 	faceValueMap = map[string]nftDataMedalFaceValue{
 		"gold": nftDataMedalFaceValue{
 			Denom:  nftDataMedalFaceValueDenom,
-			Amount: "20000000",
+			Amount: "300000000",
 		},
 		"silver": nftDataMedalFaceValue{
 			Denom:  nftDataMedalFaceValueDenom,
-			Amount: "10000000",
+			Amount: "201000000",
 		},
 		"bronze": nftDataMedalFaceValue{
 			Denom:  nftDataMedalFaceValueDenom,
-			Amount: "5000000",
+			Amount: "99000000",
 		},
 	}
 	badgeLevelNameMap = map[string]int{
@@ -86,7 +86,7 @@ func TestNftMint(t *testing.T) {
 	data := nftData{}                    //nft data
 	medal := nftDataMedal{}              //nft data medal property
 	levelCounter := make(map[string]int) //计数
-	memo := "test"
+	memo := ""
 	getAccInfo := func(addr string) (uint64, uint64, error) {
 		var accNumber, sequence uint64
 		if acc, err := irisClient.QueryAccount(addr); err != nil {
@@ -160,11 +160,10 @@ func TestNftMint(t *testing.T) {
 				request.ID = nftId
 				request.Name = nftName
 				request.Data = string(jsonData)
-				//request.Recipient = holder
 				//mint nft
 				if res, err := irisClient.NFT.MintNFT(request, baseTx); err != nil {
-					t.Errorf("nft mint fail, index: %d, errCode: %d, codeSpace: %s, err: %s\n",
-						index, err.Code(), err.Codespace(), err.Error())
+					t.Errorf("nft mint fail, index: %d, nftId:%s, nftInfo:%s, errCode: %d, codeSpace: %s, err: %s\n",
+						index, request.ID, util.ToJsonIgnoreErr(request), err.Code(), err.Codespace(), err.Error())
 					time.Sleep(time.Duration(5) * time.Second)
 					if _, v2, err := getAccInfo(sender); err != nil {
 						t.Errorf("query acc info fail, addr:%s, err:%s\n", sender, err.Error())
@@ -273,5 +272,27 @@ func TestNftIssue(t *testing.T) {
 		t.Fatalf("nft mint fail, errCode: %d, codeSpace: %s, err: %s", err.Code(), err.Codespace(), err.Error())
 	} else {
 		t.Logf("issue denom success, txHash: %s, denomId: %s, denomName: %s", res.Hash, request.ID, request.Name)
+	}
+}
+
+func TestNftBurnSingle(t *testing.T) {
+	initClient()
+	baseTx := sdktypes.BaseTx{
+		From:     fromName,
+		Password: fromPassword,
+		Gas:      gasLimit,
+		Fee:      sdktypes.DecCoins{fee},
+		Memo:     "test",
+		Mode:     sdktypes.Sync,
+	}
+	//flag.Parse()
+	request := nft.BurnNFTRequest{
+		Denom: "bifrostestnetbadge",
+		ID:    "silver0004nutc9g9a",
+	}
+	if res, err := irisClient.NFT.BurnNFT(request, baseTx); err != nil {
+		t.Errorf("nft burn fail, errCode: %d, codeSpace: %s, err: %s\n", err.Code(), err.Codespace(), err.Error())
+	} else {
+		t.Logf("nft burn success, txHash: %s", res.Hash)
 	}
 }
