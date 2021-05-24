@@ -356,25 +356,3 @@ func TestNftIssue(t *testing.T) {
 		t.Logf("issue denom success, txHash: %s, denomId: %s, denomName: %s", res.Hash, request.ID, request.Name)
 	}
 }
-
-func TestNftBurnSingle(t *testing.T) {
-	initClient()
-	baseTx := sdktypes.BaseTx{
-		From:     fromName,
-		Password: fromPassword,
-		Gas:      gasLimit,
-		Fee:      sdktypes.DecCoins{fee},
-		Memo:     "test",
-		Mode:     sdktypes.Sync,
-	}
-	//flag.Parse()
-	request := nft.BurnNFTRequest{
-		Denom: "bifrostestnetbadge",
-		ID:    "silver0004nutc9g9a",
-	}
-	if res, err := irisClient.NFT.BurnNFT(request, baseTx); err != nil {
-		t.Errorf("nft burn fail, errCode: %d, codeSpace: %s, err: %s\n", err.Code(), err.Codespace(), err.Error())
-	} else {
-		t.Logf("nft burn success, txHash: %s", res.Hash)
-	}
-}

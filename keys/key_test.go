@@ -38,7 +38,7 @@ func TestNewKeyStoreKeyManager(t *testing.T) {
 func TestNewMnemonicKeyManager(t *testing.T) {
 	defaultAlgo := "secp256k1"
 	mnemonic := ""
-	hdPath := ""
+	hdPath := "44'/118'/0'/0/0"
 	ksPasswd := ""
 
 	if km, err := sdkcrypto.NewMnemonicKeyManagerWithHDPath(mnemonic, defaultAlgo, hdPath); err != nil {
